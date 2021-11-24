@@ -33,8 +33,9 @@
   },
   "keywords": [
     "react-native",
-    "ios",
-    "android"
+    "android",
+    "usb",
+    "serialport"
   ],
   "repository": "https://github.com/bastengao/react-native-usb-serialport-for-android",
   "author": "bastengao <bastengao@gmail.com> (https://github.com/bastengao)",

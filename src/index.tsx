@@ -20,3 +20,30 @@ const UsbSerialportForAndroid = NativeModules.UsbSerialportForAndroid
 export function multiply(a: number, b: number): Promise<number> {
   return UsbSerialportForAndroid.multiply(a, b);
 }
+
+export interface Device {
+  readonly deviceId: number;
+  readonly vendorId: number;
+  readonly productId: number;
+}
+interface OpenOptions {
+  baudRate: number;
+  parity: Parity;
+  dataBits: number;
+  stopBits: number;
+}
+
+export enum Parity {
+  None = 0,
+  Odd,
+  Even,
+  Mark,
+  Space,
+}
+
+export default class UsbSerial {
+  static list(): Promise<Device[]> {
+    console.log('list');
+    return UsbSerialportForAndroid.list();
+  }
+};

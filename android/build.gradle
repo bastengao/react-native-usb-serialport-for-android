@@ -48,6 +48,7 @@ repositories {
         // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
         url("$rootDir/../node_modules/react-native/android")
     }
+    maven { url 'https://jitpack.io' }
     google()
     mavenCentral()
     jcenter()
@@ -56,4 +57,5 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation "com.github.mik3y:usb-serial-for-android:3.4.3"
 }

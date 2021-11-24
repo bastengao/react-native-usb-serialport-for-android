@@ -1,18 +1,23 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-usb-serialport-for-android';
+import UsbSerial, { Device } from 'react-native-usb-serialport-for-android';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
+  const [result, setResult] = React.useState<Device[]>([]);
 
   React.useEffect(() => {
-    multiply(3, 7).then(setResult);
+    UsbSerial.list().then(devices => {
+      console.log(devices)
+      setResult(devices);
+    });
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      {result.map(device => (
+        <Text key={device.deviceId}>deviceId: {device.deviceId}, venderId: {device.vendorId}, productId: {device.productId}</Text>
+      ))}
     </View>
   );
 }
