@@ -1,4 +1,4 @@
-package com.reactnativeusbserialportforandroid;
+package com.bastengao.usbserialport;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,6 +9,7 @@ import android.hardware.usb.UsbManager;
 
 import androidx.annotation.NonNull;
 
+import com.bastengao.usbserialport.BuildConfig;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -28,7 +29,7 @@ import java.util.Map;
 @ReactModule(name = UsbSerialportForAndroidModule.NAME)
 public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
     public static final String NAME = "UsbSerialportForAndroid";
-    private static final String INTENT_ACTION_GRANT_USB = "com.example.reactnativeusbserialportforandroid" + ".GRANT_USB"; // TODO: change it
+    private static final String INTENT_ACTION_GRANT_USB = BuildConfig.LIBRARY_PACKAGE_NAME + ".GRANT_USB";
     private final Map<Integer, UsbSerialPortWrapper> usbSerialPorts = new HashMap<Integer, UsbSerialPortWrapper>();
 
     public UsbSerialportForAndroidModule(ReactApplicationContext reactContext) {

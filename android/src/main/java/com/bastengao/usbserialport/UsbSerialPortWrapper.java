@@ -1,4 +1,4 @@
-package com.reactnativeusbserialportforandroid;
+package com.bastengao.usbserialport;
 
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 
