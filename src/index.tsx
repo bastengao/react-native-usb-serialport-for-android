@@ -1,31 +1,9 @@
-import { NativeModules, Platform } from 'react-native';
+import { Platform } from 'react-native';
+import UsbSerialportForAndroid, { Device } from './native_module';
+import UsbSerial from './usb_serial';
 
-const LINKING_ERROR =
-  `The package 'react-native-usb-serialport-for-android' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo managed workflow\n';
+export { Device, UsbSerial };
 
-const UsbSerialportForAndroid = NativeModules.UsbSerialportForAndroid
-  ? NativeModules.UsbSerialportForAndroid
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
-
-export function multiply(a: number, b: number): Promise<number> {
-  return UsbSerialportForAndroid.multiply(a, b);
-}
-
-export interface Device {
-  readonly deviceId: number;
-  readonly vendorId: number;
-  readonly productId: number;
-}
 interface OpenOptions {
   baudRate: number;
   parity: Parity;
@@ -41,9 +19,19 @@ export enum Parity {
   Space,
 }
 
-export default class UsbSerial {
+export default class UsbSerialManager {
   static list(): Promise<Device[]> {
-    console.log('list');
     return UsbSerialportForAndroid.list();
+  }
+
+  static tryRequestPermission(deviceId: number): Promise<void> {
+    return UsbSerialportForAndroid.tryRequestPermission(deviceId);
+  }
+
+  static open(deviceId: number, options: OpenOptions): Promise<UsbSerial> {
+    return UsbSerialportForAndroid.open(deviceId, options.baudRate, options.dataBits, options.stopBits, options.parity)
+      .then(() => {
+        return new UsbSerial(deviceId);
+      });
   }
 };
