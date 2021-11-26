@@ -1,8 +1,10 @@
-import { Platform } from 'react-native';
+import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 import UsbSerialportForAndroid, { Device } from './native_module';
 import UsbSerial from './usb_serial';
 
 export { Device, UsbSerial };
+
+const eventEmitter = new NativeEventEmitter(NativeModules.UsbSerialportForAndroid);
 
 interface OpenOptions {
   baudRate: number;
@@ -36,7 +38,7 @@ const UsbSerialManager: Manager = {
 
   async open(deviceId: number, options: OpenOptions): Promise<UsbSerial> {
     await UsbSerialportForAndroid.open(deviceId, options.baudRate, options.dataBits, options.stopBits, options.parity);
-    return new UsbSerial(deviceId);
+    return new UsbSerial(deviceId, eventEmitter);
   }
 };
 

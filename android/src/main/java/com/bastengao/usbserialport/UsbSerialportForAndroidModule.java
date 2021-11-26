@@ -9,7 +9,6 @@ import android.hardware.usb.UsbManager;
 
 import androidx.annotation.NonNull;
 
-import com.bastengao.usbserialport.BuildConfig;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -18,6 +17,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -27,13 +27,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ReactModule(name = UsbSerialportForAndroidModule.NAME)
-public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
+public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule implements EventSender {
     public static final String NAME = "UsbSerialportForAndroid";
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.LIBRARY_PACKAGE_NAME + ".GRANT_USB";
+
+    private final ReactApplicationContext reactContext;
     private final Map<Integer, UsbSerialPortWrapper> usbSerialPorts = new HashMap<Integer, UsbSerialPortWrapper>();
 
     public UsbSerialportForAndroidModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        this.reactContext = reactContext;
     }
 
     @Override
@@ -123,7 +126,7 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
             return;
         }
 
-        wrapper = new UsbSerialPortWrapper(port);
+        wrapper = new UsbSerialPortWrapper(deviceId, port, this);
         usbSerialPorts.put(deviceId, wrapper);
         promise.resolve(deviceId);
     }
@@ -159,6 +162,16 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
         promise.resolve(true);
     }
 
+    public void sendEvent(final String eventName, final WritableMap event) {
+        reactContext.runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(eventName, event);
+            }
+        });
+    }
+
     private UsbDevice findDevice(int deviceId) {
         UsbManager usbManager = (UsbManager) getCurrentActivity().getSystemService(Context.USB_SERVICE);
         for (UsbDevice device : usbManager.getDeviceList().values()) {
@@ -178,5 +191,17 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
                 + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
+    }
+
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 }
