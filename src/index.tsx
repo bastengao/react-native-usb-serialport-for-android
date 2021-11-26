@@ -19,19 +19,38 @@ export enum Parity {
   Space,
 }
 
-export default class UsbSerialManager {
-  static list(): Promise<Device[]> {
+interface Manager {
+  list(): Promise<Device[]>;
+  tryRequestPermission(deviceId: number): Promise<void>;
+  open(deviceId: number, options: OpenOptions): Promise<UsbSerial>;
+}
+
+const UsbSerialManager: Manager = {
+  list(): Promise<Device[]> {
     return UsbSerialportForAndroid.list();
-  }
+  },
 
-  static tryRequestPermission(deviceId: number): Promise<void> {
+  tryRequestPermission(deviceId: number): Promise<void> {
     return UsbSerialportForAndroid.tryRequestPermission(deviceId);
-  }
+  },
 
-  static open(deviceId: number, options: OpenOptions): Promise<UsbSerial> {
-    return UsbSerialportForAndroid.open(deviceId, options.baudRate, options.dataBits, options.stopBits, options.parity)
-      .then(() => {
-        return new UsbSerial(deviceId);
-      });
+  async open(deviceId: number, options: OpenOptions): Promise<UsbSerial> {
+    await UsbSerialportForAndroid.open(deviceId, options.baudRate, options.dataBits, options.stopBits, options.parity);
+    return new UsbSerial(deviceId);
   }
 };
+
+const manager: Manager = (Platform.OS == 'android')
+ ? UsbSerialManager
+ : (new Proxy(
+    {},
+    {
+      get() {
+        return () => {
+          throw new Error(`Not support ${Platform.OS}`);
+        }
+      },
+    }
+  )) as Manager;
+
+export default manager;
