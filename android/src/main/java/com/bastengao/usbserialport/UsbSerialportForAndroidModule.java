@@ -78,6 +78,12 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void open(int deviceId, int baudRate, int dataBits, int stopBits, int parity, Promise promise) {
+        UsbSerialPortWrapper wrapper = usbSerialPorts.get(deviceId);
+        if (wrapper != null) {
+            promise.resolve(deviceId);
+            return;
+        }
+
         UsbManager usbManager = (UsbManager) getCurrentActivity().getSystemService(Context.USB_SERVICE);
         UsbDevice device = findDevice(deviceId);
         if (device == null) {
@@ -117,7 +123,7 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
             return;
         }
 
-        UsbSerialPortWrapper wrapper = new UsbSerialPortWrapper(port);
+        wrapper = new UsbSerialPortWrapper(port);
         usbSerialPorts.put(deviceId, wrapper);
         promise.resolve(deviceId);
     }
