@@ -7,8 +7,8 @@ export default class UsbSerial {
     this.deviceId = deviceId;
   }
 
-  send() {
-    // TODO: implement
+  send(hexStr: string): Promise<null> {
+    return UsbSerialportForAndroid.send(this.deviceId, hexStr);
   }
 
   onReceived() {

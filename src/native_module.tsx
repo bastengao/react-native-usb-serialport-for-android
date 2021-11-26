@@ -16,6 +16,7 @@ interface UsbSerialportForAndroidAPI {
   list(): Promise<Device[]>;
   tryRequestPermission(deviceId: number): Promise<void>;
   open(deviceId: number, baudRate: number, dataBits: number, stopBits: number, parity: number): Promise<void>;
+  send(deviceId: number, hexStr: string): Promise<null>;
   close(deviceId: number): Promise<boolean>;
 }
 

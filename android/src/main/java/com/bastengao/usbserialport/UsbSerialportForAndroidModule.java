@@ -129,6 +129,24 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void send(int deviceId, String hexStr, Promise promise) {
+        UsbSerialPortWrapper wrapper = usbSerialPorts.get(deviceId);
+        if (wrapper == null) {
+            promise.reject("0", "device not open");
+            return;
+        }
+
+        byte[] data = hexStringToByteArray(hexStr);
+        try {
+            wrapper.send(data);
+            promise.resolve(null);
+        } catch (IOException e) {
+            promise.reject("0", "send failed", e);
+            return;
+        }
+    }
+
+    @ReactMethod
     public void close(int deviceId, Promise promise) {
         UsbSerialPortWrapper wrapper = usbSerialPorts.get(deviceId);
         if (wrapper == null) {
@@ -150,5 +168,15 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
         }
 
         return null;
+    }
+
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
     }
 }
