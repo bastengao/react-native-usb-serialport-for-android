@@ -36,7 +36,11 @@ export default function App() {
         }
       }} />
       <Button title="close" onPress={async () => {
-        await usbSerialport.current?.close();
+        try {
+          await usbSerialport.current?.close();
+        } catch(err) {
+          console.log(err);
+        }
         console.log("close success")
       }} />
     </View>

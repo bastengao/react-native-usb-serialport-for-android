@@ -42,14 +42,6 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
         return NAME;
     }
 
-
-    // Example method
-    // See https://reactnative.dev/docs/native-modules-android
-    @ReactMethod
-    public void multiply(int a, int b, Promise promise) {
-        promise.resolve(a * b);
-    }
-
     @ReactMethod
     public void list(Promise promise) {
         WritableArray devices = Arguments.createArray();
@@ -135,9 +127,11 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
         UsbSerialPortWrapper wrapper = usbSerialPorts.get(deviceId);
         if (wrapper == null) {
             promise.reject("7", "serial port not open or closed");
+            return;
         }
 
         wrapper.close();
+        usbSerialPorts.remove(deviceId);
         promise.resolve(true);
     }
 
@@ -151,6 +145,4 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule {
 
         return null;
     }
-
-    public static native int nativeMultiply(int a, int b);
 }
