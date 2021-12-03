@@ -11,12 +11,9 @@
     "src",
     "lib",
     "android",
-    "ios",
     "cpp",
-    "react-native-usb-serialport-for-android.podspec",
     "!lib/typescript/example",
     "!android/build",
-    "!ios/build",
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__"
