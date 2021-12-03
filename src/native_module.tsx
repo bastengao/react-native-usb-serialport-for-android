@@ -14,10 +14,10 @@ export interface Device {
 
 interface UsbSerialportForAndroidAPI {
   list(): Promise<Device[]>;
-  tryRequestPermission(deviceId: number): Promise<void>;
-  open(deviceId: number, baudRate: number, dataBits: number, stopBits: number, parity: number): Promise<void>;
+  tryRequestPermission(deviceId: number): Promise<null>;
+  open(deviceId: number, baudRate: number, dataBits: number, stopBits: number, parity: number): Promise<number>;
   send(deviceId: number, hexStr: string): Promise<null>;
-  close(deviceId: number): Promise<boolean>;
+  close(deviceId: number): Promise<null>;
 }
 
 const UsbSerialportForAndroid: UsbSerialportForAndroidAPI = NativeModules.UsbSerialportForAndroid

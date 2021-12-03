@@ -159,7 +159,7 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
 
         wrapper.close();
         usbSerialPorts.remove(deviceId);
-        promise.resolve(true);
+        promise.resolve(null);
     }
 
     public void sendEvent(final String eventName, final WritableMap event) {
