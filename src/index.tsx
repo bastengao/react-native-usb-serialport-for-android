@@ -3,10 +3,11 @@ import UsbSerialportForAndroid, { Device } from './native_module';
 import UsbSerial from './usb_serial';
 
 export { Device, UsbSerial };
+export { Listener, EventData } from "./usb_serial";
 
 const eventEmitter = new NativeEventEmitter(NativeModules.UsbSerialportForAndroid);
 
-interface OpenOptions {
+export interface OpenOptions {
   baudRate: number;
   parity: Parity;
   dataBits: number;
@@ -21,13 +22,13 @@ export enum Parity {
   Space,
 }
 
-interface Manager {
+export interface Manager {
   list(): Promise<Device[]>;
   tryRequestPermission(deviceId: number): Promise<null>;
   open(deviceId: number, options: OpenOptions): Promise<UsbSerial>;
 }
 
-const UsbSerialManager: Manager = {
+const defaultManager: Manager = {
   list(): Promise<Device[]> {
     return UsbSerialportForAndroid.list();
   },
@@ -42,8 +43,8 @@ const UsbSerialManager: Manager = {
   }
 };
 
-const manager: Manager = (Platform.OS == 'android')
- ? UsbSerialManager
+export const UsbSerialManager: Manager = (Platform.OS == 'android')
+ ? defaultManager
  : (new Proxy(
     {},
     {
@@ -54,5 +55,3 @@ const manager: Manager = (Platform.OS == 'android')
       },
     }
   )) as Manager;
-
-export default manager;

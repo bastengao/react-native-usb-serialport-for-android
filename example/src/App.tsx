@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text, Button } from 'react-native';
-import UsbSerialManager, { Device, UsbSerial, Parity } from 'react-native-usb-serialport-for-android';
+import { UsbSerialManager, Device, UsbSerial, Parity } from 'react-native-usb-serialport-for-android';
 
 export default function App() {
   const [result, setResult] = React.useState<Device[]>([]);

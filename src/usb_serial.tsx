@@ -3,17 +3,17 @@ import UsbSerialportForAndroid from './native_module';
 
 const DataReceivedEvent = 'usbSerialPortDataReceived';
 
-interface EventData {
+export interface EventData {
   deviceId: number;
   data: string;
 }
 
-type Listener = (data: EventData) => void;
+export type Listener = (data: EventData) => void;
 
 export default class UsbSerial {
   deviceId: number;
-  eventEmitter: EventEmitter;
-  listeners: Listener[]
+  private eventEmitter: EventEmitter;
+  private listeners: Listener[]
 
   constructor(deviceId: number, eventEmitter: EventEmitter) {
     this.deviceId = deviceId;
