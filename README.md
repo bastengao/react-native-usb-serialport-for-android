@@ -34,6 +34,8 @@ try {
 }
 ```
 
+See [documentation](https://bastengao.com/react-native-usb-serialport-for-android/) for details.
+
 ## Contributing
 
 See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
