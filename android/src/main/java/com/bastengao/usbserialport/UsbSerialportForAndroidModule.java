@@ -69,7 +69,6 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
         }
 
         if (usbManager.hasPermission(device)) {
-            System.out.println("has permission");
             promise.resolve(1);
             return;
         }

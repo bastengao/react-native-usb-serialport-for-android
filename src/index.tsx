@@ -24,6 +24,10 @@ export enum Parity {
 
 export interface Manager {
   list(): Promise<Device[]>;
+  /**
+   * return true if already has permission, otherwise will request permission and return false.
+   * @param deviceId
+   */
   tryRequestPermission(deviceId: number): Promise<boolean>;
   hasPermission(deviceId: number): Promise<boolean>;
   open(deviceId: number, options: OpenOptions): Promise<UsbSerial>;
