@@ -24,7 +24,8 @@ export enum Parity {
 
 export interface Manager {
   list(): Promise<Device[]>;
-  tryRequestPermission(deviceId: number): Promise<null>;
+  tryRequestPermission(deviceId: number): Promise<boolean>;
+  hasPermission(deviceId: number): Promise<boolean>;
   open(deviceId: number, options: OpenOptions): Promise<UsbSerial>;
 }
 
@@ -33,8 +34,13 @@ const defaultManager: Manager = {
     return UsbSerialportForAndroid.list();
   },
 
-  tryRequestPermission(deviceId: number): Promise<null> {
-    return UsbSerialportForAndroid.tryRequestPermission(deviceId);
+  async tryRequestPermission(deviceId: number): Promise<boolean> {
+     const result = await UsbSerialportForAndroid.tryRequestPermission(deviceId);
+     return result === 1;
+  },
+
+  hasPermission(deviceId: number): Promise<boolean> {
+    return UsbSerialportForAndroid.hasPermission(deviceId);
   },
 
   async open(deviceId: number, options: OpenOptions): Promise<UsbSerial> {
