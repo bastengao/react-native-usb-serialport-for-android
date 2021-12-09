@@ -31,6 +31,15 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
     public static final String NAME = "UsbSerialportForAndroid";
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.LIBRARY_PACKAGE_NAME + ".GRANT_USB";
 
+    public static final String CODE_DEVICE_NOT_FOND = "device_not_found";
+    public static final String CODE_DRIVER_NOT_FOND = "driver_not_found";
+    public static final String CODE_NOT_ENOUGH_PORTS = "not_enough_ports";
+    public static final String CODE_PERMISSION_DENIED = "permission_denied";
+    public static final String CODE_OPEN_FAILED = "open_failed";
+    public static final String CODE_DEVICE_NOT_OPEN = "device_not_open";
+    public static final String CODE_SEND_FAILED = "send_failed";
+    public static final String CODE_DEVICE_NOT_OPEN_OR_CLOSED = "device_not_open_or_closed";
+
     private final ReactApplicationContext reactContext;
     private final Map<Integer, UsbSerialPortWrapper> usbSerialPorts = new HashMap<Integer, UsbSerialPortWrapper>();
 
@@ -43,6 +52,20 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
     @NonNull
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public Map<String, Object> getConstants() {
+        final Map<String, Object> constants = new HashMap<>();
+        constants.put("CODE_DEVICE_NOT_FOND", CODE_DEVICE_NOT_FOND);
+        constants.put("CODE_DRIVER_NOT_FOND", CODE_DRIVER_NOT_FOND);
+        constants.put("CODE_NOT_ENOUGH_PORTS", CODE_NOT_ENOUGH_PORTS);
+        constants.put("CODE_PERMISSION_DENIED", CODE_PERMISSION_DENIED);
+        constants.put("CODE_OPEN_FAILED", CODE_OPEN_FAILED);
+        constants.put("CODE_DEVICE_NOT_OPEN", CODE_DEVICE_NOT_OPEN);
+        constants.put("CODE_SEND_FAILED", CODE_SEND_FAILED);
+        constants.put("CODE_DEVICE_NOT_OPEN_OR_CLOSED", CODE_DEVICE_NOT_OPEN_OR_CLOSED);
+        return constants;
     }
 
     @ReactMethod
@@ -64,7 +87,7 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
         UsbManager usbManager = (UsbManager) getCurrentActivity().getSystemService(Context.USB_SERVICE);
         UsbDevice device = findDevice(deviceId);
         if (device == null) {
-            promise.reject("1", "device not found");
+            promise.reject(CODE_DEVICE_NOT_FOND, "device not found");
             return;
         }
 
@@ -83,7 +106,7 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
         UsbManager usbManager = (UsbManager) getCurrentActivity().getSystemService(Context.USB_SERVICE);
         UsbDevice device = findDevice(deviceId);
         if (device == null) {
-            promise.reject("1", "device not found");
+            promise.reject(CODE_DEVICE_NOT_FOND, "device not found");
             return;
         }
 
@@ -102,26 +125,26 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
         UsbManager usbManager = (UsbManager) getCurrentActivity().getSystemService(Context.USB_SERVICE);
         UsbDevice device = findDevice(deviceId);
         if (device == null) {
-            promise.reject("1", "device not found");
+            promise.reject(CODE_DEVICE_NOT_FOND, "device not found");
             return;
         }
 
         UsbSerialDriver driver = UsbSerialProber.getDefaultProber().probeDevice(device);
         if (driver == null) {
-            promise.reject("2", "no driver for device");
+            promise.reject(CODE_DRIVER_NOT_FOND, "no driver for device");
             return;
         }
         if (driver.getPorts().size() < 0) {
-            promise.reject("3", "not enough ports at device");
+            promise.reject(CODE_NOT_ENOUGH_PORTS, "not enough ports at device");
             return;
         }
 
         UsbDeviceConnection connection = usbManager.openDevice(driver.getDevice());
         if(connection == null) {
             if (!usbManager.hasPermission(driver.getDevice())) {
-                promise.reject("4", "connection failed: permission denied");
+                promise.reject(CODE_PERMISSION_DENIED, "connection failed: permission denied");
             } else {
-                promise.reject("5", "connection failed: open failed");
+                promise.reject(CODE_OPEN_FAILED, "connection failed: open failed");
             }
             return;
         }
@@ -134,7 +157,7 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
             try {
                  port.close();
             } catch (IOException ignored) {}
-            promise.reject("6", "connection failed", e);
+            promise.reject(CODE_OPEN_FAILED, "connection failed", e);
             return;
         }
 
@@ -147,7 +170,7 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
     public void send(int deviceId, String hexStr, Promise promise) {
         UsbSerialPortWrapper wrapper = usbSerialPorts.get(deviceId);
         if (wrapper == null) {
-            promise.reject("0", "device not open");
+            promise.reject(CODE_DEVICE_NOT_OPEN, "device not open");
             return;
         }
 
@@ -156,7 +179,7 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
             wrapper.send(data);
             promise.resolve(null);
         } catch (IOException e) {
-            promise.reject("0", "send failed", e);
+            promise.reject(CODE_SEND_FAILED, "send failed", e);
             return;
         }
     }
@@ -165,7 +188,7 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
     public void close(int deviceId, Promise promise) {
         UsbSerialPortWrapper wrapper = usbSerialPorts.get(deviceId);
         if (wrapper == null) {
-            promise.reject("7", "serial port not open or closed");
+            promise.reject(CODE_DEVICE_NOT_OPEN_OR_CLOSED, "serial port not open or closed");
             return;
         }
 

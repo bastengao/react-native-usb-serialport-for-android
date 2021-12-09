@@ -11,7 +11,7 @@ npm install react-native-usb-serialport-for-android --save
 ## Usage
 
 ```js
-import { UsbSerialManager, Parity } from "react-native-usb-serialport-for-android";
+import { UsbSerialManager, Parity, Codes } from "react-native-usb-serialport-for-android";
 
 // ...
 const devices = await UsbSerialManager.list();
@@ -31,6 +31,9 @@ try {
   usbSerialport.close();
 } catch(err) {
   console.log(err);
+  if (err.code === Codes.DEVICE_NOT_FOND) {
+    // ...
+  }
 }
 ```
 
