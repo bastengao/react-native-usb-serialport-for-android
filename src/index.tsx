@@ -3,7 +3,7 @@ import UsbSerialportForAndroid, { Device } from './native_module';
 import UsbSerial from './usb_serial';
 
 export { Device, UsbSerial };
-export { Listener, EventData } from "./usb_serial";
+export { Listener, EventData } from './usb_serial';
 
 const {
   CODE_DEVICE_NOT_FOND,
@@ -27,7 +27,9 @@ export const Codes = {
   DEVICE_NOT_OPEN_OR_CLOSED: CODE_DEVICE_NOT_OPEN_OR_CLOSED,
 };
 
-const eventEmitter = new NativeEventEmitter(NativeModules.UsbSerialportForAndroid);
+const eventEmitter = new NativeEventEmitter(
+  NativeModules.UsbSerialportForAndroid
+);
 
 export interface OpenOptions {
   baudRate: number;
@@ -48,10 +50,10 @@ export interface Manager {
   list(): Promise<Device[]>;
   /**
    * Return true if already has permission, otherwise will request permission and return false.
-   * 
+   *
    * May return error with these codes:
    * * DEVICE_NOT_FOND
-   * 
+   *
    * See {@link Codes}
    * @param deviceId
    */
@@ -59,9 +61,9 @@ export interface Manager {
   /**
    * May return error with these codes:
    * * DEVICE_NOT_FOND
-   * 
+   *
    * See {@link Codes}
-   * @param deviceId 
+   * @param deviceId
    */
   hasPermission(deviceId: number): Promise<boolean>;
   /**
@@ -71,10 +73,10 @@ export interface Manager {
    * * NOT_ENOUGH_PORTS
    * * PERMISSION_DENIED
    * * OPEN_FAILED
-   * 
+   *
    * See {@link Codes}
-   * @param deviceId 
-   * @param options 
+   * @param deviceId
+   * @param options
    */
   open(deviceId: number, options: OpenOptions): Promise<UsbSerial>;
 }
@@ -85,8 +87,8 @@ const defaultManager: Manager = {
   },
 
   async tryRequestPermission(deviceId: number): Promise<boolean> {
-     const result = await UsbSerialportForAndroid.tryRequestPermission(deviceId);
-     return result === 1;
+    const result = await UsbSerialportForAndroid.tryRequestPermission(deviceId);
+    return result === 1;
   },
 
   hasPermission(deviceId: number): Promise<boolean> {
@@ -94,20 +96,27 @@ const defaultManager: Manager = {
   },
 
   async open(deviceId: number, options: OpenOptions): Promise<UsbSerial> {
-    await UsbSerialportForAndroid.open(deviceId, options.baudRate, options.dataBits, options.stopBits, options.parity);
+    await UsbSerialportForAndroid.open(
+      deviceId,
+      options.baudRate,
+      options.dataBits,
+      options.stopBits,
+      options.parity
+    );
     return new UsbSerial(deviceId, eventEmitter);
-  }
+  },
 };
 
-export const UsbSerialManager: Manager = (Platform.OS == 'android')
- ? defaultManager
- : (new Proxy(
-    {},
-    {
-      get() {
-        return () => {
-          throw new Error(`Not support ${Platform.OS}`);
+export const UsbSerialManager: Manager =
+  Platform.OS === 'android'
+    ? defaultManager
+    : (new Proxy(
+        {},
+        {
+          get() {
+            return () => {
+              throw new Error(`Not support ${Platform.OS}`);
+            };
+          },
         }
-      },
-    }
-  )) as Manager;
+      ) as Manager);

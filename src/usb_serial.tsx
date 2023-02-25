@@ -13,7 +13,7 @@ export type Listener = (data: EventData) => void;
 export default class UsbSerial {
   deviceId: number;
   private eventEmitter: EventEmitter;
-  private listeners: Listener[]
+  private listeners: Listener[];
 
   constructor(deviceId: number, eventEmitter: EventEmitter) {
     this.deviceId = deviceId;
@@ -23,14 +23,14 @@ export default class UsbSerial {
 
   /**
    * Send data with hex string.
-   * 
+   *
    * May return error with these codes:
    * * DEVICE_NOT_OPEN
    * * SEND_FAILED
-   * 
+   *
    * See {@link Codes}
-   * @param hexStr 
-   * @returns 
+   * @param hexStr
+   * @returns
    */
   send(hexStr: string): Promise<null> {
     return UsbSerialportForAndroid.send(this.deviceId, hexStr);
@@ -46,19 +46,19 @@ export default class UsbSerial {
       }
 
       listener(event);
-    }
+    };
 
     this.listeners.push(listenerProxy);
-    return this.eventEmitter.addListener(DataReceivedEvent, listenerProxy)
+    return this.eventEmitter.addListener(DataReceivedEvent, listenerProxy);
   }
 
   /**
-   * 
+   *
    * May return error with these codes:
    * * DEVICE_NOT_OPEN_OR_CLOSED
-   * 
+   *
    * See {@link Codes}
-   * @returns 
+   * @returns Promise<null>
    */
   close(): Promise<any> {
     for (const listener of this.listeners) {
