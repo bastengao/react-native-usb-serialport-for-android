@@ -1,4 +1,4 @@
-import type { EventEmitter } from 'react-native';
+import type { EventEmitter, EventSubscription } from 'react-native';
 import UsbSerialportForAndroid from './native_module';
 
 const DataReceivedEvent = 'usbSerialPortDataReceived';
@@ -14,11 +14,13 @@ export default class UsbSerial {
   deviceId: number;
   private eventEmitter: EventEmitter;
   private listeners: Listener[];
+  private subscriptions: EventSubscription[];
 
   constructor(deviceId: number, eventEmitter: EventEmitter) {
     this.deviceId = deviceId;
     this.eventEmitter = eventEmitter;
     this.listeners = [];
+    this.subscriptions = [];
   }
 
   /**
@@ -36,6 +38,12 @@ export default class UsbSerial {
     return UsbSerialportForAndroid.send(this.deviceId, hexStr);
   }
 
+  /**
+   * Listen to data received event.
+   *
+   * @param listener
+   * @returns EventSubscription
+   */
   onReceived(listener: Listener) {
     const listenerProxy = (event: EventData) => {
       if (event.deviceId !== this.deviceId) {
@@ -49,7 +57,9 @@ export default class UsbSerial {
     };
 
     this.listeners.push(listenerProxy);
-    return this.eventEmitter.addListener(DataReceivedEvent, listenerProxy);
+    const sub = this.eventEmitter.addListener(DataReceivedEvent, listenerProxy);
+    this.subscriptions.push(sub);
+    return sub;
   }
 
   /**
@@ -61,8 +71,8 @@ export default class UsbSerial {
    * @returns Promise<null>
    */
   close(): Promise<any> {
-    for (const listener of this.listeners) {
-      this.eventEmitter.removeListener(DataReceivedEvent, listener);
+    for (const sub of this.subscriptions) {
+      sub.remove();
     }
     return UsbSerialportForAndroid.close(this.deviceId);
   }
