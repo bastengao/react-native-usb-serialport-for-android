@@ -95,8 +95,8 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
             promise.resolve(1);
             return;
         }
-
-        PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(getCurrentActivity(), 0, new Intent(INTENT_ACTION_GRANT_USB), 0);
+        final int flag =  Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
+        PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(getCurrentActivity(), 0, new Intent(INTENT_ACTION_GRANT_USB), flag);
         usbManager.requestPermission(device, usbPermissionIntent);
         promise.resolve(0);
     }
