@@ -108,11 +108,34 @@ public class UsbSerialportForAndroidModule extends ReactContextBaseJavaModule im
             promise.resolve(1);
             return;
         }
-        final int flag =  Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
-        PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(getCurrentActivity(), 0, new Intent(INTENT_ACTION_GRANT_USB), flag);
-        usbManager.requestPermission(device, usbPermissionIntent);
-        promise.resolve(0);
-    }
+ final int flag =  Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+    PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(getCurrentActivity(), 0, new Intent(INTENT_ACTION_GRANT_USB), flag);
+
+    // Create a custom BroadcastReceiver to handle the USB permission request result
+    BroadcastReceiver usbPermissionReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (INTENT_ACTION_GRANT_USB.equals(action)) {
+                boolean permissionGranted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false);
+                if (permissionGranted) {
+                    promise.resolve(1);
+                } else {
+                    promise.resolve(0);
+                }
+                // Unregister the BroadcastReceiver after handling the result
+                getCurrentActivity().unregisterReceiver(this);
+            }
+        }
+    };
+
+    // Register the BroadcastReceiver to listen for the permission request result
+    IntentFilter filter = new IntentFilter(INTENT_ACTION_GRANT_USB);
+    getCurrentActivity().registerReceiver(usbPermissionReceiver, filter);
+
+    // Request USB permission
+    usbManager.requestPermission(device, usbPermissionIntent);
+}
 
     @ReactMethod
     public void hasPermission(int deviceId, Promise promise) {
