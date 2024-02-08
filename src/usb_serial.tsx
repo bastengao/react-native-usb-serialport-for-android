@@ -5,6 +5,9 @@ const DataReceivedEvent = 'usbSerialPortDataReceived';
 
 export interface EventData {
   deviceId: number;
+  /**
+   * hex format
+   */
   data: string;
 }
 
